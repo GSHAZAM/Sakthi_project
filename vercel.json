@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "name": "urban-drone-delivery",
+  "builds": [
+    {
+      "src": "pom.xml",
+      "use": "@vercel/static-build",
+      "config": { "distDir": "target/classes/templates" }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
+}

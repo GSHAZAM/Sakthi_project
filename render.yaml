@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: urban-drone-delivery
+    env: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    port: 8080
