@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Package Registry - Urban Drone Delivery</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body>
+
+<div class="app-wrapper">
+    <aside class="sidebar">
+        <a href="/admin/dashboard" class="sidebar-brand">
+            <i class="fa-solid fa-drone"></i>
+            <span>UrbanDrone Admin</span>
+        </a>
+        <nav class="nav flex-column">
+            <a href="/admin/dashboard" class="nav-link-custom"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+            <a href="/admin/users" class="nav-link-custom"><i class="fa-solid fa-users"></i> Customers</a>
+            <a href="/admin/packages" class="nav-link-custom active"><i class="fa-solid fa-box"></i> Package Registry</a>
+            <a href="/admin/drones" class="nav-link-custom"><i class="fa-solid fa-helicopter"></i> Drone Fleet</a>
+            <a href="/admin/landing-pads" class="nav-link-custom"><i class="fa-solid fa-layer-group"></i> Landing Pads</a>
+            <a href="/admin/lockers" class="nav-link-custom"><i class="fa-solid fa-vault"></i> Lockers</a>
+            <a href="/admin/deliveries" class="nav-link-custom"><i class="fa-solid fa-truck-fast"></i> Deliveries</a>
+        </nav>
+        <div class="mt-auto pt-4 border-top border-white border-opacity-10">
+            <form th:action="@{/logout}" method="POST">
+                <button type="submit" class="btn btn-outline-light w-100 btn-sm text-start"><i class="fa-solid fa-right-from-bracket me-2"></i> Log Out</button>
+            </form>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-navbar">
+            <h4 class="fw-bold mb-0">Package Management System</h4>
+            <button class="btn btn-primary fw-bold" data-bs-toggle="modal" data-bs-target="#addPackageModal">
+                <i class="fa-solid fa-plus me-1"></i> Register New Package
+            </button>
+        </header>
+
+        <!-- Alerts -->
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fa-solid fa-circle-check me-2"></i> <span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fa-solid fa-circle-exclamation me-2"></i> <span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <!-- Search & Filter Controls -->
+        <div class="card p-3 mb-4 shadow-sm border-0">
+            <form action="/admin/packages" method="GET" class="row g-3 align-items-center">
+                <div class="col-md-5">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light"><i class="fa-solid fa-magnifying-glass"></i></span>
+                        <input type="text" name="search" th:value="${search}" class="form-control" placeholder="Search by tracking #, name, or destination">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <select name="statusFilter" class="form-select" onchange="this.form.submit()">
+                        <option value="">All Package Statuses</option>
+                        <option th:each="st : ${packageStatuses}" th:value="${st}" th:text="${st}" th:selected="${st == selectedStatus}"></option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex gap-2">
+                    <button type="submit" class="btn btn-secondary w-100 fw-bold">Search</button>
+                    <a href="/admin/packages" class="btn btn-outline-secondary">Reset</a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Package Table -->
+        <div class="custom-table-card">
+            <div class="card-header">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-box text-primary"></i>
+                    <span>All Registered Packages</span>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Tracking #</th>
+                            <th>Package Name</th>
+                            <th>Customer</th>
+                            <th>Weight (KG)</th>
+                            <th>Source</th>
+                            <th>Destination</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="p : ${packages}">
+                            <td>
+                                <a th:href="@{/tracking(trackingNumber=${p.trackingNumber})}" class="fw-bold text-decoration-none" th:text="${p.trackingNumber}">UDN-2026-0001</a>
+                            </td>
+                            <td class="fw-semibold" th:text="${p.packageName}">Package Name</td>
+                            <td th:text="${p.customer.name}">Customer Name</td>
+                            <td th:text="${p.weight} + ' kg'">1.5 kg</td>
+                            <td class="small text-muted" th:text="${p.source}">Source</td>
+                            <td class="small fw-semibold" th:text="${p.destination}">Destination</td>
+                            <td>
+                                <span th:classappend="${p.status.name() == 'STORED_IN_LOCKER' ? 'bg-info text-dark' : (p.status.name() == 'DELIVERED' ? 'bg-success' : 'bg-primary')}" class="badge badge-custom" th:text="${p.status}">REGISTERED</span>
+                            </td>
+                            <td>
+                                <div class="d-flex gap-1">
+                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" th:data-bs-target="'#editModal' + ${p.id}"><i class="fa-solid fa-pen-to-square"></i></button>
+                                    <form th:action="@{/admin/packages/delete/{id}(id=${p.id})}" method="POST" onsubmit="return confirm('Are you sure you want to delete this package?');">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-trash"></i></button>
+                                    </form>
+                                </div>
+
+                                <!-- Edit Package Modal -->
+                                <div class="modal fade" th:id="'editModal' + ${p.id}" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <form th:action="@{/admin/packages/edit/{id}(id=${p.id})}" method="POST">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title fw-bold">Edit Package Details</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <div class="modal-body text-start">
+                                                    <div class="mb-3">
+                                                        <label class="form-label fw-semibold">Tracking Number</label>
+                                                        <input type="text" class="form-control" th:value="${p.trackingNumber}" readonly>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label fw-semibold">Package Name</label>
+                                                        <input type="text" name="packageName" class="form-control" th:value="${p.packageName}" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label fw-semibold">Description</label>
+                                                        <input type="text" name="description" class="form-control" th:value="${p.description}">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label fw-semibold">Weight (kg)</label>
+                                                        <input type="number" step="0.1" name="weight" class="form-control" th:value="${p.weight}" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label fw-semibold">Source Location</label>
+                                                        <input type="text" name="source" class="form-control" th:value="${p.source}" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label fw-semibold">Destination Pad / Location</label>
+                                                        <input type="text" name="destination" class="form-control" th:value="${p.destination}" required>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                    <button type="submit" class="btn btn-primary fw-bold">Save Changes</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(packages)}">
+                            <td colspan="8" class="text-center text-muted py-4">No packages found.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Add Package Modal -->
+        <div class="modal fade" id="addPackageModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form th:action="@{/admin/packages/add}" th:object="${newPackage}" method="POST">
+                        <div class="modal-header">
+                            <h5 class="modal-title fw-bold">Register New Package</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Auto-Generated Tracking Number</label>
+                                <input type="text" th:field="*{trackingNumber}" class="form-control bg-light" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Assign Customer</label>
+                                <select name="customerId" class="form-select" required>
+                                    <option value="">Select Customer...</option>
+                                    <option th:each="c : ${customers}" th:value="${c.id}" th:text="${c.name} + ' (' + ${c.email} + ')'"></option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Package Name</label>
+                                <input type="text" th:field="*{packageName}" class="form-control" placeholder="e.g. Medical Supplies" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Description</label>
+                                <textarea th:field="*{description}" class="form-control" placeholder="Payload notes..."></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Weight (KG)</label>
+                                <input type="number" step="0.1" th:field="*{weight}" class="form-control" placeholder="e.g. 2.5" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Source Location</label>
+                                <input type="text" th:field="*{source}" class="form-control" placeholder="Origin warehouse address" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Destination Location</label>
+                                <input type="text" th:field="*{destination}" class="form-control" placeholder="Landing Pad / Target address" required>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary fw-bold">Register Package</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

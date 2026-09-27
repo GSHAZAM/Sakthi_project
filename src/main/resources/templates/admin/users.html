@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Management - Urban Drone Delivery</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body>
+
+<div class="app-wrapper">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <a href="/admin/dashboard" class="sidebar-brand">
+            <i class="fa-solid fa-drone"></i>
+            <span>UrbanDrone Admin</span>
+        </a>
+        <nav class="nav flex-column">
+            <a href="/admin/dashboard" class="nav-link-custom"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+            <a href="/admin/users" class="nav-link-custom active"><i class="fa-solid fa-users"></i> Customers</a>
+            <a href="/admin/packages" class="nav-link-custom"><i class="fa-solid fa-box"></i> Package Registry</a>
+            <a href="/admin/drones" class="nav-link-custom"><i class="fa-solid fa-helicopter"></i> Drone Fleet</a>
+            <a href="/admin/landing-pads" class="nav-link-custom"><i class="fa-solid fa-layer-group"></i> Landing Pads</a>
+            <a href="/admin/lockers" class="nav-link-custom"><i class="fa-solid fa-vault"></i> Lockers</a>
+            <a href="/admin/deliveries" class="nav-link-custom"><i class="fa-solid fa-truck-fast"></i> Deliveries</a>
+        </nav>
+        <div class="mt-auto pt-4 border-top border-white border-opacity-10">
+            <form th:action="@{/logout}" method="POST">
+                <button type="submit" class="btn btn-outline-light w-100 btn-sm text-start"><i class="fa-solid fa-right-from-bracket me-2"></i> Log Out</button>
+            </form>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-navbar">
+            <h4 class="fw-bold mb-0">Customer &amp; Account Directory</h4>
+        </header>
+
+        <div class="custom-table-card">
+            <div class="card-header">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-users text-primary"></i>
+                    <span>Registered Platform Users</span>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>User ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Role</th>
+                            <th>Registered On</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="u : ${users}">
+                            <td class="fw-bold" th:text="'#' + ${u.id}">#1</td>
+                            <td class="fw-semibold" th:text="${u.name}">John Doe</td>
+                            <td th:text="${u.email}">john@example.com</td>
+                            <td th:text="${u.phone}">+1 555-0199</td>
+                            <td>
+                                <span th:classappend="${u.role.name() == 'ADMIN' ? 'bg-danger' : 'bg-primary'}" class="badge badge-custom" th:text="${u.role}">CUSTOMER</span>
+                            </td>
+                            <td th:text="${#temporals.format(u.createdAt, 'yyyy-MM-dd HH:mm')}">2026-09-27</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

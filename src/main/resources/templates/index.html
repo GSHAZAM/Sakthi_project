@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Urban Drone Delivery &amp; Package Locker Network</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+    <!-- Header Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-3 px-4 shadow-sm">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center gap-2 fw-bold fs-4" href="/">
+                <i class="fa-solid fa-drone text-info"></i> UrbanDrone Express
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+                    <li class="nav-item"><a class="nav-link active" href="/">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/tracking">Track Package</a></li>
+                </ul>
+                <div class="d-flex gap-2">
+                    <div sec:authorize="isAnonymous()">
+                        <a href="/login" class="btn btn-outline-light me-2 fw-semibold px-4"><i class="fa-solid fa-right-to-bracket me-1"></i> Log In</a>
+                        <a href="/register" class="btn btn-primary fw-semibold px-4"><i class="fa-solid fa-user-plus me-1"></i> Register</a>
+                    </div>
+                    <div sec:authorize="isAuthenticated()">
+                        <a sec:authorize="hasRole('ADMIN')" href="/admin/dashboard" class="btn btn-success fw-semibold px-4">Admin Dashboard</a>
+                        <a sec:authorize="hasRole('CUSTOMER')" href="/customer/dashboard" class="btn btn-info text-white fw-semibold px-4">Customer Portal</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-glow"></div>
+        <div class="container position-relative z-2 text-center text-lg-start">
+            <div class="row align-items-center">
+                <div class="col-lg-7">
+                    <span class="badge bg-info text-dark px-3 py-2 rounded-pill fw-bold mb-3"><i class="fa-solid fa-bolt me-1"></i> Next-Gen Autonomous Logistics</span>
+                    <h1 class="display-4 fw-extrabold mb-3">Automated Urban Drone Delivery &amp; Smart Pad Network</h1>
+                    <p class="lead text-light opacity-75 mb-4">Fast, eco-friendly, zero-traffic drone dispatch straight to secure landing pads and automated package lockers across the city.</p>
+                    
+                    <!-- Tracking Box -->
+                    <div class="card p-3 shadow-lg border-0 bg-white text-dark rounded-4 mb-4">
+                        <form action="/tracking" method="GET" class="row g-2">
+                            <div class="col-md-8">
+                                <div class="input-group input-group-lg">
+                                    <span class="input-group-text bg-light border-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                                    <input type="text" name="trackingNumber" class="form-control border-0 bg-light fs-6" placeholder="Enter Tracking Number (e.g. UDN-2026-0001)" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold fs-6"><i class="fa-solid fa-location-crosshairs me-2"></i> Track Package</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="col-lg-5 text-center mt-5 mt-lg-0">
+                    <div class="p-4 bg-white bg-opacity-10 rounded-4 border border-white border-opacity-20 shadow-lg backdrop-blur">
+                        <i class="fa-solid fa-box-archive text-info display-1 mb-3"></i>
+                        <h4 class="fw-bold">Smart Landing Pads &amp; Lockers</h4>
+                        <p class="text-light opacity-75 small">Autonomous pad guidance, real-time drone telemetry, and instant pin-secured locker storage.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <div class="container py-5">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">How The Drone Network Operates</h2>
+            <p class="text-muted">End-to-end automated dispatch pipeline from warehouse to recipient locker</p>
+        </div>
+        <div class="row g-4 text-center">
+            <div class="col-md-4">
+                <div class="stat-card p-4">
+                    <div class="stat-icon bg-purple-light mx-auto"><i class="fa-solid fa-box-open"></i></div>
+                    <h5 class="fw-bold">1. Package Registration</h5>
+                    <p class="text-muted small">Package details and payload weight are registered in the central urban log system.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card p-4">
+                    <div class="stat-icon bg-cyan-light mx-auto"><i class="fa-solid fa-helicopter"></i></div>
+                    <h5 class="fw-bold">2. Auto Flight Assignment</h5>
+                    <p class="text-muted small">Algorithms match optimal drone capacity, battery levels, available landing pads &amp; target lockers.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card p-4">
+                    <div class="stat-icon bg-emerald-light mx-auto"><i class="fa-solid fa-lock"></i></div>
+                    <h5 class="fw-bold">3. Locker Deposit &amp; Pickup</h5>
+                    <p class="text-muted small">Drone drops payload directly into a secure pad locker. Customer receives real-time notification.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4 mt-auto">
+        <div class="container text-center">
+            <p class="mb-0 text-muted small">&copy; 2026 Automated Urban Drone Delivery Landing Pad &amp; Package Locker Network. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/js/main.js}"></script>
+</body>
+</html>

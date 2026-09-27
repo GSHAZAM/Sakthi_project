@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Packages - Urban Drone Delivery</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body>
+
+<div class="app-wrapper">
+    <aside class="sidebar">
+        <a href="/customer/dashboard" class="sidebar-brand">
+            <i class="fa-solid fa-drone"></i>
+            <span>UrbanDrone Portal</span>
+        </a>
+        <nav class="nav flex-column">
+            <a href="/customer/dashboard" class="nav-link-custom"><i class="fa-solid fa-house"></i> Dashboard</a>
+            <a href="/customer/packages" class="nav-link-custom active"><i class="fa-solid fa-box"></i> My Packages</a>
+            <a href="/tracking" class="nav-link-custom"><i class="fa-solid fa-location-dot"></i> Package Tracking</a>
+            <a href="/customer/profile" class="nav-link-custom"><i class="fa-solid fa-user-gear"></i> Profile Settings</a>
+        </nav>
+        <div class="mt-auto pt-4 border-top border-white border-opacity-10">
+            <form th:action="@{/logout}" method="POST">
+                <button type="submit" class="btn btn-outline-light w-100 btn-sm text-start"><i class="fa-solid fa-right-from-bracket me-2"></i> Log Out</button>
+            </form>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-navbar">
+            <h4 class="fw-bold mb-0">My Package Portfolio</h4>
+        </header>
+
+        <div class="custom-table-card">
+            <div class="card-header">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-boxes-stacked text-primary"></i>
+                    <span>All Registered Shipments</span>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Tracking #</th>
+                            <th>Package Name</th>
+                            <th>Weight (KG)</th>
+                            <th>Source</th>
+                            <th>Destination Pad</th>
+                            <th>Status</th>
+                            <th>Track</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="p : ${packages}">
+                            <td>
+                                <a th:href="@{/tracking(trackingNumber=${p.trackingNumber})}" class="fw-bold text-decoration-none" th:text="${p.trackingNumber}">UDN-2026-0001</a>
+                            </td>
+                            <td class="fw-semibold" th:text="${p.packageName}">Package Name</td>
+                            <td th:text="${p.weight} + ' kg'">1.5 kg</td>
+                            <td class="small text-muted" th:text="${p.source}">Origin</td>
+                            <td class="small fw-semibold" th:text="${p.destination}">Destination Pad</td>
+                            <td>
+                                <span th:classappend="${p.status.name() == 'STORED_IN_LOCKER' ? 'bg-info text-dark' : (p.status.name() == 'DELIVERED' ? 'bg-success' : 'bg-primary')}" class="badge badge-custom" th:text="${p.status}">REGISTERED</span>
+                            </td>
+                            <td>
+                                <a th:href="@{/tracking(trackingNumber=${p.trackingNumber})}" class="btn btn-sm btn-outline-primary fw-bold">
+                                    <i class="fa-solid fa-crosshairs me-1"></i> Track
+                                </a>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(packages)}">
+                            <td colspan="7" class="text-center text-muted py-4">No packages found for your account.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

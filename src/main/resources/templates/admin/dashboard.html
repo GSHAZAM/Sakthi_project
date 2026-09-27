@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Urban Drone Delivery</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body>
+
+<div class="app-wrapper">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <a href="/admin/dashboard" class="sidebar-brand">
+            <i class="fa-solid fa-drone"></i>
+            <span>UrbanDrone Admin</span>
+        </a>
+
+        <nav class="nav flex-column">
+            <a href="/admin/dashboard" class="nav-link-custom active"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+            <a href="/admin/users" class="nav-link-custom"><i class="fa-solid fa-users"></i> Customers</a>
+            <a href="/admin/packages" class="nav-link-custom"><i class="fa-solid fa-box"></i> Package Registry</a>
+            <a href="/admin/drones" class="nav-link-custom"><i class="fa-solid fa-helicopter"></i> Drone Fleet</a>
+            <a href="/admin/landing-pads" class="nav-link-custom"><i class="fa-solid fa-layer-group"></i> Landing Pads</a>
+            <a href="/admin/lockers" class="nav-link-custom"><i class="fa-solid fa-vault"></i> Lockers</a>
+            <a href="/admin/deliveries" class="nav-link-custom"><i class="fa-solid fa-truck-fast"></i> Deliveries</a>
+        </nav>
+
+        <div class="mt-auto pt-4 border-top border-white border-opacity-10">
+            <form th:action="@{/logout}" method="POST">
+                <button type="submit" class="btn btn-outline-light w-100 btn-sm text-start"><i class="fa-solid fa-right-from-bracket me-2"></i> Log Out</button>
+            </form>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Navbar -->
+        <header class="top-navbar">
+            <div class="d-flex align-items-center gap-3">
+                <button id="sidebar-toggler" class="btn btn-light d-lg-none"><i class="fa-solid fa-bars"></i></button>
+                <h4 class="fw-bold mb-0">System Operations Dashboard</h4>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge bg-success bg-opacity-10 text-success fw-bold px-3 py-2"><i class="fa-solid fa-circle me-1 small"></i> Network Online</span>
+                <span class="fw-semibold text-muted" sec:authentication="name">admin@urbandrone.com</span>
+            </div>
+        </header>
+
+        <!-- Stats Overview Grid -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="stat-card">
+                    <div class="stat-icon bg-purple-light"><i class="fa-solid fa-users"></i></div>
+                    <div>
+                        <div class="stat-number" th:text="${totalCustomers}">0</div>
+                        <div class="stat-label">Total Customers</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="stat-card">
+                    <div class="stat-icon bg-cyan-light"><i class="fa-solid fa-boxes-stacked"></i></div>
+                    <div>
+                        <div class="stat-number" th:text="${totalPackages}">0</div>
+                        <div class="stat-label">Total Packages</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="stat-card">
+                    <div class="stat-icon bg-emerald-light"><i class="fa-solid fa-helicopter"></i></div>
+                    <div>
+                        <div class="stat-number" th:text="${availableDrones}">0</div>
+                        <div class="stat-label">Available Drones</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="stat-card">
+                    <div class="stat-icon bg-amber-light"><i class="fa-solid fa-square-parking"></i></div>
+                    <div>
+                        <div class="stat-number" th:text="${availableLandingPads}">0</div>
+                        <div class="stat-label">Available Landing Pads</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-icon bg-blue-light"><i class="fa-solid fa-vault"></i></div>
+                    <div>
+                        <div class="stat-number" th:text="${availableLockers}">0</div>
+                        <div class="stat-label">Available Lockers</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-icon bg-rose-light"><i class="fa-solid fa-clock"></i></div>
+                    <div>
+                        <div class="stat-number" th:text="${activeDeliveries}">0</div>
+                        <div class="stat-label">Active Deliveries</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-icon bg-emerald-light"><i class="fa-solid fa-circle-check"></i></div>
+                    <div>
+                        <div class="stat-number" th:text="${completedDeliveries}">0</div>
+                        <div class="stat-label">Completed Deliveries</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Deliveries Table -->
+        <div class="custom-table-card">
+            <div class="card-header">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-list-check text-primary"></i>
+                    <span>Recent Network Deliveries</span>
+                </div>
+                <a href="/admin/deliveries" class="btn btn-sm btn-outline-primary fw-bold">Manage All Deliveries</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tracking #</th>
+                            <th>Customer</th>
+                            <th>Drone</th>
+                            <th>Landing Pad</th>
+                            <th>Locker</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="delivery : ${recentDeliveries}">
+                            <td class="fw-bold" th:text="'#' + ${delivery.id}">#1</td>
+                            <td>
+                                <a th:href="@{/tracking(trackingNumber=${delivery.pkg.trackingNumber})}" class="fw-bold text-decoration-none" th:text="${delivery.pkg.trackingNumber}">UDN-2026-0001</a>
+                            </td>
+                            <td th:text="${delivery.customer.name}">Customer Name</td>
+                            <td>
+                                <span th:if="${delivery.drone != null}" class="badge bg-secondary" th:text="${delivery.drone.droneName}">SkyLifter X1</span>
+                                <span th:if="${delivery.drone == null}" class="text-muted">Unassigned</span>
+                            </td>
+                            <td>
+                                <span th:if="${delivery.landingPad != null}" class="badge bg-light text-dark border" th:text="${delivery.landingPad.padName}">Pad Alpha</span>
+                                <span th:if="${delivery.landingPad == null}" class="text-muted">Unassigned</span>
+                            </td>
+                            <td>
+                                <span th:if="${delivery.locker != null}" class="badge bg-info text-dark" th:text="${delivery.locker.lockerNumber}">Locker 101</span>
+                                <span th:if="${delivery.locker == null}" class="text-muted">Unassigned</span>
+                            </td>
+                            <td>
+                                <span th:classappend="${delivery.status.name() == 'COMPLETED' ? 'bg-success' : (delivery.status.name() == 'IN_TRANSIT' ? 'bg-warning text-dark' : 'bg-primary')}" class="badge badge-custom" th:text="${delivery.status}">STATUS</span>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(recentDeliveries)}">
+                            <td colspan="7" class="text-center text-muted py-4">No recent deliveries recorded in system.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>
