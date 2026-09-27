@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delivery Dispatch &amp; Live Tracking - Urban Drone Delivery</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+    <!-- Header Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-3 px-4 shadow-sm mb-4">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center gap-2 fw-bold fs-4" href="/">
+                <i class="fa-solid fa-drone text-info"></i> UrbanDrone Delivery &amp; Tracking
+            </a>
+            <div class="d-flex gap-2">
+                <a href="/" class="btn btn-outline-light btn-sm fw-semibold me-2"><i class="fa-solid fa-house me-1"></i> Home</a>
+                <a href="/login" class="btn btn-primary btn-sm fw-semibold">Sign In</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container pb-5">
+        
+        <!-- Live Tracking Search Section -->
+        <div class="card p-4 shadow-lg border-0 rounded-4 mb-4">
+            <h4 class="fw-bold text-center mb-3"><i class="fa-solid fa-satellite text-primary me-2"></i> Real-Time Package Tracking</h4>
+            <form action="/delivery" method="GET" class="row justify-content-center g-2">
+                <div class="col-md-7">
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-text bg-light border-1"><i class="fa-solid fa-barcode text-muted"></i></span>
+                        <input type="text" name="trackingNumber" th:value="${searchedTrackingNumber}" class="form-control fs-6" placeholder="Enter Tracking Number (e.g. UDN-2026-0001)" required>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold fs-6"><i class="fa-solid fa-magnifying-glass me-2"></i> Track Package</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Error Message -->
+        <div th:if="${errorMessage}" class="alert alert-danger shadow-sm rounded-4 p-4 text-center mb-4" role="alert">
+            <i class="fa-solid fa-triangle-exclamation fa-2x mb-2 text-danger"></i>
+            <h5 class="fw-bold mb-1" th:text="${errorMessage}">Package Not Found</h5>
+            <p class="text-muted small mb-0">Please verify tracking number (e.g. UDN-2026-0001) and try again.</p>
+        </div>
+
+        <!-- Package Telemetry & Status Result -->
+        <div th:if="${package != null}" class="card shadow-lg border-0 rounded-4 overflow-hidden mb-4">
+            <div class="card-header bg-dark text-white p-4">
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                    <div>
+                        <span class="badge bg-info text-dark fw-bold px-3 py-2 mb-2"><i class="fa-solid fa-cube me-1"></i> Live Package Telemetry</span>
+                        <h3 class="fw-bold mb-0" th:text="${package.trackingNumber}">UDN-2026-0001</h3>
+                        <p class="text-light opacity-75 small mb-0" th:text="${package.packageName}">Electronic Components</p>
+                    </div>
+                    <div>
+                        <span th:classappend="${package.status.name() == 'DELIVERED' ? 'bg-success' : 'bg-warning text-dark'}" class="badge fs-6 px-3 py-2 fw-bold" th:text="${package.status}">IN_TRANSIT</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-4 p-md-5">
+
+                <!-- Tracking Pipeline Visualizer -->
+                <h5 class="fw-bold mb-4 text-center"><i class="fa-solid fa-route text-primary me-2"></i> Autonomous Flight Pipeline Status</h5>
+                
+                <div class="tracking-pipeline">
+                    <div class="tracking-step" th:classappend="${package.status.name() != null ? 'completed' : ''}">
+                        <div class="step-icon"><i class="fa-solid fa-file-signature"></i></div>
+                        <div class="step-label">REGISTERED</div>
+                    </div>
+                    <div class="tracking-step" th:classappend="${delivery != null ? 'completed' : ''}">
+                        <div class="step-icon"><i class="fa-solid fa-helicopter"></i></div>
+                        <div class="step-label">DRONE ASSIGNED</div>
+                    </div>
+                    <div class="tracking-step" th:classappend="${delivery != null and (delivery.status.name() == 'IN_TRANSIT' or delivery.status.name() == 'ARRIVED' or delivery.status.name() == 'READY_FOR_COLLECTION' or delivery.status.name() == 'COMPLETED') ? 'completed' : ''}">
+                        <div class="step-icon"><i class="fa-solid fa-plane-flight"></i></div>
+                        <div class="step-label">IN TRANSIT</div>
+                    </div>
+                    <div class="tracking-step" th:classappend="${delivery != null and (delivery.status.name() == 'ARRIVED' or delivery.status.name() == 'READY_FOR_COLLECTION' or delivery.status.name() == 'COMPLETED') ? 'completed' : ''}">
+                        <div class="step-icon"><i class="fa-solid fa-layer-group"></i></div>
+                        <div class="step-label">ARRIVED AT PAD</div>
+                    </div>
+                    <div class="tracking-step" th:classappend="${delivery != null and (delivery.status.name() == 'READY_FOR_COLLECTION' or delivery.status.name() == 'COMPLETED') ? 'completed' : ''}">
+                        <div class="step-icon"><i class="fa-solid fa-vault"></i></div>
+                        <div class="step-label">LOCKER ASSIGNED</div>
+                    </div>
+                    <div class="tracking-step" th:classappend="${delivery != null and delivery.status.name() == 'READY_FOR_COLLECTION' ? 'active' : (delivery != null and delivery.status.name() == 'COMPLETED' ? 'completed' : '')}">
+                        <div class="step-icon"><i class="fa-solid fa-box-open"></i></div>
+                        <div class="step-label">READY FOR COLLECTION</div>
+                    </div>
+                    <div class="tracking-step" th:classappend="${delivery != null and delivery.status.name() == 'COMPLETED' ? 'completed' : ''}">
+                        <div class="step-icon"><i class="fa-solid fa-circle-check"></i></div>
+                        <div class="step-label">COMPLETED</div>
+                    </div>
+                </div>
+
+                <!-- Telemetry Details Table -->
+                <div class="row g-4 mt-3">
+                    <div class="col-md-6">
+                        <div class="p-4 bg-light rounded-4 border h-100">
+                            <h6 class="fw-bold text-primary mb-3"><i class="fa-solid fa-box me-2"></i> Package Overview</h6>
+                            <table class="table table-borderless table-sm mb-0">
+                                <tbody>
+                                    <tr>
+                                        <td class="text-muted">Package Name:</td>
+                                        <td class="fw-bold" th:text="${package.packageName}">Name</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted">Customer:</td>
+                                        <td class="fw-bold" th:text="${package.customer.name}">Customer</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted">Source:</td>
+                                        <td class="fw-semibold text-secondary" th:text="${package.source}">Coimbatore</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted">Destination:</td>
+                                        <td class="fw-bold text-dark" th:text="${package.destination}">Chennai</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted">Weight:</td>
+                                        <td class="fw-bold" th:text="${package.weight} + ' kg'">2.5 kg</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="p-4 bg-light rounded-4 border h-100">
+                            <h6 class="fw-bold text-info mb-3"><i class="fa-solid fa-network-wired me-2"></i> Resource Allocation</h6>
+                            <div th:if="${delivery != null}">
+                                <table class="table table-borderless table-sm mb-0">
+                                    <tbody>
+                                        <tr>
+                                            <td class="text-muted">Assigned Drone:</td>
+                                            <td>
+                                                <span th:if="${delivery.drone != null}" class="badge bg-secondary" th:text="${delivery.drone.droneName}">AeroHawk 500</span>
+                                                <span th:if="${delivery.drone == null}" class="text-muted">Pending</span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">Landing Pad:</td>
+                                            <td>
+                                                <span th:if="${delivery.landingPad != null}" class="badge bg-dark" th:text="${delivery.landingPad.padName}">Pad Beta - Chennai Tech Hub</span>
+                                                <span th:if="${delivery.landingPad == null}" class="text-muted">Pending</span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">Locker:</td>
+                                            <td>
+                                                <span th:if="${delivery.locker != null}" class="badge bg-info text-dark" th:text="${delivery.locker.lockerNumber}">LOCKER-202</span>
+                                                <span th:if="${delivery.locker == null}" class="text-muted">Pending</span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">Est. Delivery Time:</td>
+                                            <td class="fw-bold text-success" th:text="${#temporals.format(delivery.estimatedDeliveryTime, 'yyyy-MM-dd HH:mm')}">Time</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/js/main.js}"></script>
+</body>
+</html>

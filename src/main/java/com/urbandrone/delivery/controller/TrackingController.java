@@ -19,7 +19,7 @@ public class TrackingController {
     private final PackageService packageService;
     private final DeliveryService deliveryService;
 
-    @GetMapping("/tracking")
+    @GetMapping({"/tracking", "/delivery"})
     public String trackPackage(@RequestParam(required = false) String trackingNumber, Model model) {
         if (trackingNumber != null && !trackingNumber.trim().isEmpty()) {
             String trimmedNumber = trackingNumber.trim();
@@ -36,6 +36,6 @@ public class TrackingController {
                 model.addAttribute("errorMessage", "No package found with tracking number: " + trimmedNumber);
             }
         }
-        return "customer/tracking";
+        return "delivery";
     }
 }
